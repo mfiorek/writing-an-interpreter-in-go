@@ -161,9 +161,20 @@ type Boolean struct {
 	Value bool
 }
 
-func (bl *Boolean) expressionNode()      {}
-func (bl *Boolean) TokenLiteral() string { return bl.Token.Literal }
-func (bl *Boolean) String() string       { return bl.Token.Literal }
+func (b *Boolean) expressionNode()      {}
+func (b *Boolean) TokenLiteral() string { return b.Token.Literal }
+func (b *Boolean) String() string       { return b.Token.Literal }
+
+// INFO: String
+
+type StringLiteral struct {
+	Token token.Token // the token.STRING token
+	Value string
+}
+
+func (sl *StringLiteral) expressionNode()      {}
+func (sl *StringLiteral) TokenLiteral() string { return sl.Token.Literal }
+func (sl *StringLiteral) String() string       { return sl.Value }
 
 // INFO: PrefixExpression
 

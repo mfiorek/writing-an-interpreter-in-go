@@ -1,6 +1,8 @@
 package lexer
 
-import "mfiorek/waiig/token"
+import (
+	"mfiorek/waiig/token"
+)
 
 type Lexer struct {
 	input        string
@@ -32,6 +34,8 @@ func (l *Lexer) NextToken() token.Token {
 		tok = newToken(token.LBRACE, l.ch)
 	case '}':
 		tok = newToken(token.RBRACE, l.ch)
+	case '"':
+		tok = l.newStringToken()
 	case '<':
 		tok = newToken(token.LT, l.ch)
 	case '>':
@@ -120,6 +124,18 @@ func (l *Lexer) readNumber() string {
 }
 func isDigit(ch byte) bool {
 	return '0' <= ch && ch <= '9'
+}
+
+func (l *Lexer) newStringToken() token.Token {
+	l.readChar()
+	position := l.position
+	for l.ch != '"' && l.ch != 0 {
+		l.readChar()
+	}
+	if l.ch == 0 {
+		return token.Token{Type: token.ILLEGAL, Literal: "Unclosed string \"" + l.input[position:l.position]}
+	}
+	return token.Token{Type: token.STRING, Literal: l.input[position:l.position]}
 }
 
 func (l *Lexer) skipWhitespace() {
