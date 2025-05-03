@@ -2,6 +2,7 @@ package ast
 
 import (
 	"bytes"
+	"fmt"
 	"mfiorek/waiig/token"
 	"strings"
 )
@@ -11,6 +12,7 @@ import (
 type Node interface {
 	TokenLiteral() string
 	String() string
+	Ast() string
 }
 
 type Statement interface {
@@ -45,6 +47,15 @@ func (p *Program) String() string {
 
 	return out.String()
 }
+func (p *Program) Ast() string {
+	var out bytes.Buffer
+
+	for _, s := range p.Statements {
+		out.WriteString(s.Ast())
+	}
+
+	return out.String()
+}
 
 // INFO: ==================================== STATEMENTS! ====================================
 
@@ -73,6 +84,7 @@ func (ls *LetStatement) String() string {
 
 	return out.String()
 }
+func (ls *LetStatement) Ast() string { return "not-implemented" } // TODO: implement
 
 // INFO: ReturnStatement
 
@@ -94,6 +106,7 @@ func (rs *ReturnStatement) String() string {
 
 	return out.String()
 }
+func (rs *ReturnStatement) Ast() string { return "not-implemented" } // TODO: implement
 
 // INFO: ExpressionStatement
 
@@ -107,6 +120,12 @@ func (es *ExpressionStatement) TokenLiteral() string { return es.Token.Literal }
 func (es *ExpressionStatement) String() string {
 	if es.Expression != nil {
 		return es.Expression.String()
+	}
+	return ""
+}
+func (es *ExpressionStatement) Ast() string {
+	if es.Expression != nil {
+		return es.Expression.Ast()
 	}
 	return ""
 }
@@ -129,6 +148,7 @@ func (bs *BlockStatement) String() string {
 
 	return out.String()
 }
+func (bs *BlockStatement) Ast() string { return "not-implemented" } // TODO: implement
 
 // INFO: ==================================== EXPRESSIONS! ====================================
 
@@ -142,6 +162,7 @@ type Identifier struct {
 func (i *Identifier) expressionNode()      {}
 func (i *Identifier) TokenLiteral() string { return i.Token.Literal }
 func (i *Identifier) String() string       { return i.Value }
+func (i *Identifier) Ast() string          { return "not-implemented" } // TODO: implement
 
 // INFO: IntegerLiteral
 
@@ -153,6 +174,16 @@ type IntegerLiteral struct {
 func (il *IntegerLiteral) expressionNode()      {}
 func (il *IntegerLiteral) TokenLiteral() string { return il.Token.Literal }
 func (il *IntegerLiteral) String() string       { return il.Token.Literal }
+func (il *IntegerLiteral) Ast() string {
+	var out bytes.Buffer
+	out.WriteString(fmt.Sprintf("{"))
+	incIdent()
+	out.WriteString(fmt.Sprintf("\n%sTYPE: \"IntegerLiteral\",", identLevel()))
+	out.WriteString(fmt.Sprintf("\n%sVALUE: %d,", identLevel(), il.Value))
+	decIdent()
+	out.WriteString(fmt.Sprintf("\n%s}", identLevel()))
+	return out.String()
+}
 
 // INFO: Boolean
 
@@ -164,6 +195,7 @@ type Boolean struct {
 func (b *Boolean) expressionNode()      {}
 func (b *Boolean) TokenLiteral() string { return b.Token.Literal }
 func (b *Boolean) String() string       { return b.Token.Literal }
+func (b *Boolean) Ast() string          { return "not-implemented" } // TODO: implement
 
 // INFO: String
 
@@ -175,6 +207,7 @@ type StringLiteral struct {
 func (sl *StringLiteral) expressionNode()      {}
 func (sl *StringLiteral) TokenLiteral() string { return sl.Token.Literal }
 func (sl *StringLiteral) String() string       { return sl.Value }
+func (sl *StringLiteral) Ast() string          { return "not-implemented" } // TODO: implement
 
 // INFO: PrefixExpression
 
@@ -193,6 +226,19 @@ func (pe *PrefixExpression) String() string {
 	out.WriteString(pe.Operator)
 	out.WriteString(pe.Right.String())
 	out.WriteString(")")
+
+	return out.String()
+}
+func (pe *PrefixExpression) Ast() string {
+	var out bytes.Buffer
+
+	out.WriteString(fmt.Sprintf("{"))
+	incIdent()
+	out.WriteString(fmt.Sprintf("\n%sTYPE: \"PrefixExpression\",", identLevel()))
+	out.WriteString(fmt.Sprintf("\n%sOPERATOR: \"%s\",", identLevel(), pe.Operator))
+	out.WriteString(fmt.Sprintf("\n%sRIGHT: %s,", identLevel(), pe.Right.Ast()))
+	decIdent()
+	out.WriteString(fmt.Sprintf("\n%s}", identLevel()))
 
 	return out.String()
 }
@@ -216,6 +262,20 @@ func (ie *InfixExpression) String() string {
 	out.WriteString(" " + ie.Operator + " ")
 	out.WriteString(ie.Right.String())
 	out.WriteString(")")
+
+	return out.String()
+}
+func (ie *InfixExpression) Ast() string {
+	var out bytes.Buffer
+
+	out.WriteString(fmt.Sprintf("{"))
+	incIdent()
+	out.WriteString(fmt.Sprintf("\n%sTYPE: \"InfixExpression\",", identLevel()))
+	out.WriteString(fmt.Sprintf("\n%sLEFT: %s,", identLevel(), ie.Left.Ast()))
+	out.WriteString(fmt.Sprintf("\n%sOPERATOR: \"%s\",", identLevel(), ie.Operator))
+	out.WriteString(fmt.Sprintf("\n%sRIGHT: %s,", identLevel(), ie.Right.Ast()))
+	decIdent()
+	out.WriteString(fmt.Sprintf("\n%s}", identLevel()))
 
 	return out.String()
 }
@@ -246,6 +306,7 @@ func (ie *IfExpression) String() string {
 
 	return out.String()
 }
+func (ie *IfExpression) Ast() string { return "not-implemented" } // TODO: implement
 
 // INFO: FunctionLiteral
 
@@ -273,6 +334,7 @@ func (fl *FunctionLiteral) String() string {
 
 	return out.String()
 }
+func (fl *FunctionLiteral) Ast() string { return "not-implemented" } // TODO: implement
 
 // INFO: CallExpression
 
@@ -299,6 +361,7 @@ func (ce *CallExpression) String() string {
 
 	return out.String()
 }
+func (ce *CallExpression) Ast() string { return "not-implemented" } // TODO: implement
 
 // INFO: ArrayLiteral
 
@@ -323,6 +386,7 @@ func (al *ArrayLiteral) String() string {
 
 	return out.String()
 }
+func (al *ArrayLiteral) Ast() string { return "not-implemented" } // TODO: implement
 
 // INFO: IndexExpression
 
@@ -346,3 +410,17 @@ func (ie *IndexExpression) String() string {
 
 	return out.String()
 }
+func (ie *IndexExpression) Ast() string { return "not-implemented" } // TODO: implement
+
+// INFO: ==================================== Helper logging methods ====================================
+
+var traceLevel int = 0
+
+const traceIdentPlaceholder string = "\t"
+
+func identLevel() string {
+	return strings.Repeat(traceIdentPlaceholder, traceLevel)
+}
+
+func incIdent() { traceLevel = traceLevel + 1 }
+func decIdent() { traceLevel = traceLevel - 1 }
